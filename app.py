@@ -2,35 +2,36 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
-st.title('Uber pickups in NYC')
+st.title("Nina Chen's Milestone Project")
 
-DATE_COLUMN = 'date/time'
-DATA_URL = ('https://s3-us-west-2.amazonaws.com/'
-            'streamlit-demo-data/uber-raw-data-sep14.csv.gz')
 
+
+import requests
+
+
+
+# replace the "demo" apikey below with your own key from https://www.alphavantage.co/support/#api-key
+apikey = '53Y9LIQ9EUI6FSRI'
+ticker = st.sidebar.text_input(label= 'Ticker (example: IBM)', value = "IBM")
+month = st.sidebar.selectbox(label = 'Month', options = range(1,13))
+year = st.sidebar.selectbox(label = 'Year', options = range(2010, 2022))
 @st.cache
-def load_data(nrows):
-    data = pd.read_csv(DATA_URL, nrows=nrows)
-    lowercase = lambda x: str(x).lower()
-    data.rename(lowercase, axis='columns', inplace=True)
-    data[DATE_COLUMN] = pd.to_datetime(data[DATE_COLUMN])
-    return data
+def load_data(ticker, month, year):
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=' + ticker +'&apikey=' + apikey + '&datatype=json&outputsize=full'
+    r = requests.get(url)
+    data = r.json()
+    if 'Time Series (Daily)' in data:
+        tmp = data['Time Series (Daily)']
+        df = pd.DataFrame.from_dict(tmp, orient = 'index')
+        df.index = pd.to_datetime(df.index,format='%Y-%m-%d')
 
-data_load_state = st.text('Loading data...')
-data = load_data(10000)
-data_load_state.text("Done! (using st.cache)")
+        return df[(df.index.month== month)& (df.index.year == year)][['4. close']]
 
-if st.checkbox('Show raw data'):
-    st.subheader('Raw data')
-    st.write(data)
 
-st.subheader('Number of pickups by hour')
-hist_values = np.histogram(data[DATE_COLUMN].dt.hour, bins=24, range=(0,24))[0]
-st.bar_chart(hist_values)
 
-# Some number in the range 0-23
-hour_to_filter = st.slider('hour', 0, 23, 17)
-filtered_data = data[data[DATE_COLUMN].dt.hour == hour_to_filter]
+data_load_state = st.text('Loading data ....')
+data = load_data(ticker, month, year)
+data_load_state.text('Loading data ... done!')
 
-st.subheader('Map of all pickups at %s:00' % hour_to_filter)
-st.map(filtered_data)
+st.subheader('Raw data')
+st.write(data)
