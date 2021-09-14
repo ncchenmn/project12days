@@ -1,8 +1,11 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly
+
 
 st.title("Nina Chen's Milestone Project")
+st.text("An interactive chart of stock closing prices using Streamlit and Plot.ly.")
 
 
 
@@ -12,7 +15,8 @@ import requests
 
 # replace the "demo" apikey below with your own key from https://www.alphavantage.co/support/#api-key
 apikey = '53Y9LIQ9EUI6FSRI'
-ticker = st.sidebar.text_input(label= 'Ticker (example: IBM)', value = "IBM")
+st.sidebar.title("Select plot parameters:")
+ticker = st.sidebar.text_input(label= 'Ticker (examples: IBM, AAPL)', value = "IBM")
 month = st.sidebar.selectbox(label = 'Month', options = range(1,13))
 year = st.sidebar.selectbox(label = 'Year', options = range(2010, 2022))
 @st.cache
@@ -33,5 +37,12 @@ data_load_state = st.text('Loading data ....')
 data = load_data(ticker, month, year)
 data_load_state.text('Loading data ... done!')
 
-st.subheader('Raw data')
-st.write(data)
+
+
+import plotly.graph_objects as go
+
+
+fig = go.Figure(data=go.Scatter(x=data.index, y=data['4. close']))
+# Edit the layout
+fig.update_layout(title='Closing Price for Each Day', xaxis_title='Day', yaxis_title='Price')
+fig
