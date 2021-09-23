@@ -4,13 +4,11 @@ import numpy as np
 import plotly
 from dotenv import load_dotenv
 import os
+import requests
 
 st.title("Nina Chen's Milestone Project")
 st.text("An interactive chart of stock closing prices using Streamlit and Plot.ly.")
 
-
-
-import requests
 
 load_dotenv(".env")
 
