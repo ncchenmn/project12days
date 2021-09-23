@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly
-
+from dotenv import load_dotenv
+import os
 
 st.title("Nina Chen's Milestone Project")
 st.text("An interactive chart of stock closing prices using Streamlit and Plot.ly.")
@@ -11,10 +12,10 @@ st.text("An interactive chart of stock closing prices using Streamlit and Plot.l
 
 import requests
 
-
+load_dotenv(".env")
 
 # replace the "demo" apikey below with your own key from https://www.alphavantage.co/support/#api-key
-apikey = '53Y9LIQ9EUI6FSRI'
+apikey = os.environ["APIKEY"]
 st.sidebar.title("Select plot parameters:")
 ticker = st.sidebar.text_input(label= 'Ticker (examples: IBM, AAPL)', value = "IBM")
 month = st.sidebar.selectbox(label = 'Month', options = range(1,13))
